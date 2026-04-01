@@ -7,7 +7,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
-from app.routers import community_snapshot, hospitals, hpsa, demographics
+from app.routers import (
+    community_snapshot, hospitals, hpsa, demographics,
+    # Phase 2 — premium endpoints
+    workforce, quality, hcahps, readmissions,
+    competition, chr, broadband, environment,
+    gpra, health_status, service_gaps, financials,
+)
+from app.middleware.rate_limit import RateLimitMiddleware
 
 
 @asynccontextmanager
@@ -15,7 +22,7 @@ async def lifespan(app: FastAPI):
     """Startup / shutdown hooks."""
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
     log = logging.getLogger("iha.api")
-    log.info("IHA Data API starting up")
+    log.info("IHA Data API v2.0 starting up — 16 endpoints active")
     yield
     log.info("IHA Data API shutting down")
 
@@ -24,10 +31,13 @@ settings = get_settings()
 
 app = FastAPI(
     title=settings.app_name,
-    version="1.0.0",
-    description="REST API exposing tribal health community data — population, HPSA, hospitals, IHS, insurance.",
+    version="2.0.0",
+    description="REST API exposing tribal health community data — population, HPSA, hospitals, IHS, insurance, quality, workforce, and more.",
     lifespan=lifespan,
 )
+
+# Rate limiting
+app.add_middleware(RateLimitMiddleware)
 
 # CORS
 origins = [o.strip() for o in settings.allowed_origins.split(",") if o.strip()]
@@ -39,13 +49,27 @@ app.add_middleware(
     allow_headers=["Authorization", "Content-Type"],
 )
 
-# Routers
+# Phase 1 — free tier
 app.include_router(community_snapshot.router)
 app.include_router(hospitals.router)
 app.include_router(hpsa.router)
 app.include_router(demographics.router)
 
+# Phase 2 — premium tier
+app.include_router(workforce.router)
+app.include_router(quality.router)
+app.include_router(hcahps.router)
+app.include_router(readmissions.router)
+app.include_router(competition.router)
+app.include_router(chr.router)
+app.include_router(broadband.router)
+app.include_router(environment.router)
+app.include_router(gpra.router)
+app.include_router(health_status.router)
+app.include_router(service_gaps.router)
+app.include_router(financials.router)
+
 
 @app.get("/health", tags=["meta"])
 async def health_check():
-    return {"status": "ok", "service": "iha-data-api", "version": "1.0.0"}
+    return {"status": "ok", "service": "iha-data-api", "version": "2.0.0"}
