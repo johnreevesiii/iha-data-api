@@ -1,10 +1,21 @@
 """IHA Data API — FastAPI service exposing HCA data fetchers as REST endpoints."""
 
+import os
 import logging
 from contextlib import asynccontextmanager
 
+import sentry_sdk
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+# Sentry error monitoring
+sentry_dsn = os.environ.get("SENTRY_DSN", "")
+if sentry_dsn:
+    sentry_sdk.init(
+        dsn=sentry_dsn,
+        traces_sample_rate=0.2,
+        environment=os.environ.get("RAILWAY_ENVIRONMENT", "development"),
+    )
 
 from app.config import get_settings
 from app.routers import (
