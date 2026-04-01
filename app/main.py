@@ -12,7 +12,7 @@ from app.routers import (
     # Phase 2 — premium endpoints
     workforce, quality, hcahps, readmissions,
     competition, chr, broadband, environment,
-    gpra, health_status, service_gaps, financials, export,
+    gpra, health_status, service_gaps, financials, export, grants,
 )
 from app.middleware.rate_limit import RateLimitMiddleware
 
@@ -69,6 +69,9 @@ app.include_router(health_status.router)
 app.include_router(service_gaps.router)
 app.include_router(financials.router)
 app.include_router(export.router)
+
+# Phase 3 — Capital Finder
+app.include_router(grants.router)
 
 
 @app.get("/health", tags=["meta"])
