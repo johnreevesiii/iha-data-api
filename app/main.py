@@ -15,6 +15,7 @@ from app.routers import (
     gpra, health_status, service_gaps, financials, export, grants,
 )
 from app.middleware.rate_limit import RateLimitMiddleware
+from app.middleware.response_cache import ResponseCacheMiddleware
 
 
 @asynccontextmanager
@@ -35,6 +36,9 @@ app = FastAPI(
     description="REST API exposing tribal health community data — population, HPSA, hospitals, IHS, insurance, quality, workforce, and more.",
     lifespan=lifespan,
 )
+
+# Response caching (outermost = checked first)
+app.add_middleware(ResponseCacheMiddleware)
 
 # Rate limiting
 app.add_middleware(RateLimitMiddleware)

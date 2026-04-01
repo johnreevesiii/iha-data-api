@@ -7,5 +7,5 @@ pandas==2.2.3
 pyarrow==18.1.0
 requests==2.32.3
 beautifulsoup4==4.12.3
-shapely>=2.0
+shapely==2.0.7
 python-dotenv==1.0.1
